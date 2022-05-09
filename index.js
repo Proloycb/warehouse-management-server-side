@@ -36,15 +36,23 @@ async function run() {
             res.send(inventory);
         });
 
-        // use put update quantity
-        app.put('/inventory/:id', async (req, res) => {
+        // delete
+        app.delete('/inventory/:id', async (req, res) => {
             const id = req.params.id;
-            const updateQuantity = req.body;
+            const query = { _id: ObjectId(id) };
+            const inventory = await inventoryCollection.deleteOne(query);
+            res.send(inventory);
+        });
+
+        // use put update quantity
+        app.put('/updateQuantity/:id', async (req, res) => {
+            const id = req.params.id;
+            const data = req.body;
             const filter = { _id: ObjectId(id) }
             const options = { upsert: true };
             const updateDoc = {
                 $set: {
-                    quantity: updateQuantity.quantity,
+                    quantity: data.updateQuantity,
                 }
             }
             const result = await inventoryCollection.updateOne(
@@ -53,7 +61,7 @@ async function run() {
                 options
             );
             res.send(result);
-            console.log(updateQuantity)
+            console.log(data)
         })
     }
     finally { }
