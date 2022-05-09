@@ -16,10 +16,10 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 async function run() {
-    try{
+    try {
         await client.connect();
         const inventoryCollection = client.db('gymEquipment').collection('inventory');
-        
+
         // inventory api
 
         app.get('/inventory', async (req, res) => {
@@ -31,12 +31,32 @@ async function run() {
 
         app.get('/inventory/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             const inventory = await inventoryCollection.findOne(query);
             res.send(inventory);
         });
+
+        // use put update quantity
+        app.put('/inventory/:id', async (req, res) => {
+            const id = req.params.id;
+            const updateQuantity = req.body;
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    quantity: updateQuantity.quantity,
+                }
+            }
+            const result = await inventoryCollection.updateOne(
+                filter,
+                updateDoc,
+                options
+            );
+            res.send(result);
+            console.log(updateQuantity)
+        })
     }
-    finally{}
+    finally { }
 }
 
 run().catch(console.dir);
