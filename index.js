@@ -22,11 +22,11 @@ async function run() {
         const inventoryCollection = client.db('gymEquipment').collection('inventory');
 
         // jwt
-        // app.get('/login', async (req, res) => {
-        //     const email = req.body;
-        //     const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET)
-        //     console.log(email)
-        // })
+        app.post('/login', async (req, res) => {
+            const email = req.body;
+            const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET);
+            res.send({token})
+        })
 
         // inventory api
 
@@ -36,12 +36,18 @@ async function run() {
             const inventories = await cursor.toArray();
             res.send(inventories);
         });
-        app.get('/inventory', async (req, res) => {
-            const email = req.query.email;
-            const query = {email};
-            const cursor = inventoryCollection.find(query);
-            const inventories = await cursor.toArray();
-            res.send(inventories);
+        // email 
+        app.get('/myInventory', async (req, res) => {
+            const tokenInfo = req.headers.authorization;
+            const [email, accessToken] = tokenInfo?.split(" ");
+            const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+            if(email === decoded.email){
+                const orderInfo = await inventoryCollection.find({email: email}).toArray();
+                res.send(orderInfo);
+            }
+            else{
+                res.send({success: 'failed'})
+            }
         });
 
         app.get('/inventory/:id', async (req, res) => {
