@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
@@ -20,10 +21,24 @@ async function run() {
         await client.connect();
         const inventoryCollection = client.db('gymEquipment').collection('inventory');
 
+        // jwt
+        // app.get('/login', async (req, res) => {
+        //     const email = req.body;
+        //     const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET)
+        //     console.log(email)
+        // })
+
         // inventory api
 
         app.get('/inventory', async (req, res) => {
             const query = {};
+            const cursor = inventoryCollection.find(query);
+            const inventories = await cursor.toArray();
+            res.send(inventories);
+        });
+        app.get('/inventory', async (req, res) => {
+            const email = req.query.email;
+            const query = {email};
             const cursor = inventoryCollection.find(query);
             const inventories = await cursor.toArray();
             res.send(inventories);
