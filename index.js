@@ -26,6 +26,7 @@ async function run() {
             const email = req.body;
             const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET);
             res.send({token})
+            console.log(token);
         })
 
         // inventory api
