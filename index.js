@@ -20,6 +20,7 @@ async function run() {
     try {
         await client.connect();
         const inventoryCollection = client.db('gymEquipment').collection('inventory');
+        const newsCollection = client.db('gymEquipment').collection('news');
 
         // jwt
         app.post('/login', async (req, res) => {
@@ -37,6 +38,16 @@ async function run() {
             const inventories = await cursor.toArray();
             res.send(inventories);
         });
+
+        // news api
+
+        app.get('/news', async (req, res) => {
+            const query = {};
+            const cursor = newsCollection.find(query);
+            const allNews = await cursor.toArray();
+            res.send(allNews);
+        });
+
         // email 
         app.get('/myInventory', async (req, res) => {
             const tokenInfo = req.headers.authorization;
